@@ -1,0 +1,226 @@
+---
+openapi: 3.0.0
+info:
+  title: Cafe el semillero
+  description: Esta API permite controlar los pedidos del Cafe.
+  contact:
+    name: Jhoan Nicolas Palomino Posada
+    email: jpalominop@devco.com.co
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/palominoposadajnOrg/CafeElSemilleroAPI/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: Cliente
+  description: Solicita pedidos
+- name: Cajero
+  description: Controla pedidos
+paths:
+  /producto:
+    get:
+      tags:
+      - Cliente
+      description: Obtiene los productos
+      parameters:
+      - name: idProducto
+        in: query
+        description: Pasa el ID del Producto
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        "400":
+          description: Parametros de busqueda incorrectos
+  /pedido:
+    put:
+      tags:
+      - Cajero
+      description: Actualiza un pedido
+      requestBody:
+        description: Pedido a actualizar
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pedido'
+      responses:
+        "200":
+          description: Pedido actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+        "201":
+          description: Pedido creado
+    post:
+      tags:
+      - Cajero
+      description: Realiza un pedido
+      requestBody:
+        description: Pedido para agregar
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pedido'
+      responses:
+        "201":
+          description: Pedido creado
+        "400":
+          description: Objeto invalido
+        "409":
+          description: El pedido ya existe
+  /pedido/{idPedido}:
+    get:
+      tags:
+      - Cajero
+      description: Obtiene los pedidos por ID
+      parameters:
+      - name: idPedido
+        in: path
+        description: Pasa el ID del Pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        "400":
+          description: Parametros de busqueda incorrectos
+    delete:
+      tags:
+      - Cajero
+      description: Eliminar pedido
+      parameters:
+      - name: idPedido
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Pedido eliminado
+        "404":
+          description: ID no encontrado
+        "401":
+          description: Sin autorización
+  /factura:
+    get:
+      tags:
+      - Cliente
+      description: Obtiene la factura
+      parameters:
+      - name: idFactura
+        in: query
+        description: Pasa el ID de la factura
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factura'
+        "400":
+          description: Parametros de busqueda incorrectos
+    post:
+      tags:
+      - Cajero
+      description: Generar una factura
+      requestBody:
+        description: Datos de la factura a generar
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Factura'
+      responses:
+        "201":
+          description: Factura creada
+        "400":
+          description: Objeto invalido
+        "409":
+          description: La factura ya existe
+components:
+  schemas:
+    Producto:
+      required:
+      - idProducto
+      type: object
+      properties:
+        idProducto:
+          type: string
+          example: tinto
+        descripcion:
+          type: string
+          example: Cafe negro
+        Costo:
+          type: integer
+          example: 1000
+    Pedido:
+      required:
+      - cantidadProductos
+      - idPedido
+      - nombrePedido
+      - usuario
+      type: object
+      properties:
+        idPedido:
+          type: string
+          example: pedido001
+        nombrePedido:
+          type: string
+          example: Pedido generico
+        cantidadProductos:
+          type: integer
+          example: 5
+        usuario:
+          type: string
+          example: pepito
+        producto:
+          type: array
+          items:
+            $ref: '#/components/schemas/Producto'
+    Factura:
+      required:
+      - idFactura
+      - nombreCajero
+      - valorTotal
+      type: object
+      properties:
+        idFactura:
+          type: string
+          example: factura001
+        nombreCajero:
+          type: string
+          example: Alfonso
+        valorTotal:
+          type: number
+          format: float
+          example: 5000
+        producto:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pedido'
